@@ -20,32 +20,16 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::039451036158:role/workflow
-          aws-region: us-east-1
-
-      # Login against a Docker registry except on PR
-      # https://github.com/docker/login-action
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registry-type: public
-
-      - name: Build, tag, and push docker image to Amazon ECR Public
-        env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: u4l5p7r0
-          REPOSITORY: heka
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-
+    - run: docker build --tag my-image:v1 .
+    - name: Push to ECR
+      id: ecr
+      uses: jwalton/gh-ecr-push@v1
+      with:
+        access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        region: us-east-1
+        local-image: deneme:v1
+        image: deneme:v1, deneme:latest
         
   EC2-Deployment:
     runs-on: ubuntu-latest
