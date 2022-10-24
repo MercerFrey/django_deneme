@@ -20,6 +20,9 @@ jobs:
       packages: write
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - run: docker build --tag deneme:v1 ..
     - name: Push to ECR
       id: ecr
